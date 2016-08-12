@@ -1,0 +1,263 @@
+<html>
+<head>
+<title>h5png</title>
+<link rel="stylesheet" type="text/css" href="cpp.css" />
+</head>
+<body>
+<h1>h5png</h1>
+Pedro Vicente 
+<br>
+<hr>
+h5png is a command line tool that converts a HDF5 image to a PNG image. The syntax is
+<br>
+<br>
+<dd><code>h5png -f file_name -i image_name</code>
+<br>
+<br>
+where <code>file_name</code> is the name of the HDF5 file and <code>image_name</code> the name of the HDF5 image (i.e, the name of the HDF5 dataset). 
+This dataset must in the current version be located at root.
+<h1>HDF5 images</h1>
+HDF5 images are simply HDF5 datasets with some metadata (attributes) that identify the dataset as an image. 
+The HDF5 image specification allows for the dataset datum to be of any HDF5 integer or float type, but currently only the unsigned char type is defined.
+Two types of images are defined in the specification and implemented, both for the RGB color model:
+<ul>
+<li>Indexed images</li>
+<li>True color images</li>
+</ul>
+The true color images are 24 bit color depth with the storage being either pixel interlacing or plane interlacing.
+In the current version, h5png only converts a 24 bit true color image with pixel interlacing to a PNG image.
+The following C program shows an example that saves an HDF5 image 200 pixels wide and 100 pixels height, 
+where the first 100 rows of pixels have the red color (i.e, RCB value 255,0,0),
+and the last 100 rows of pixels have the green color (i.e, RCB value 0,255,0).
+
+<pre class="cpp">
+<span class=preprocessor>#include</span> &lt;hdf5.h&gt;
+<span class=preprocessor>#include</span> &lt;hdf5_hl.h&gt;
+<span class=preprocessor>#include</span> &lt;stdint.h&gt;
+<span class=preprocessor>#include</span> &lt;malloc.h&gt;
+
+<span class=keyword>int</span> save_hdf5_image(<span class=keyword>const</span> <span class=keyword>char</span> *file_name, <span class=keyword>const</span> <span class=keyword>char</span> *img_name);
+
+<span class=comment>/////////////////////////////////////////////////////////////////////////////////////////////////////
+</span><span class=comment>//main
+</span><span class=comment>/////////////////////////////////////////////////////////////////////////////////////////////////////
+</span>
+<span class=keyword>int</span> main(<span class=keyword>int</span> argc, <span class=keyword>const</span> <span class=keyword>char</span> *argv[])
+{
+  <span class=keyword>if</span>(save_hdf5_image(<span class=text>&quot;image.h5&quot;</span>, <span class=text>&quot;image&quot;</span>) &lt; 0)
+  {
+
+  }
+
+  <span class=keyword>return</span> 0;
+}
+
+<span class=comment>/////////////////////////////////////////////////////////////////////////////////////////////////////
+</span><span class=comment>//save_hdf5_image
+</span><span class=comment>/////////////////////////////////////////////////////////////////////////////////////////////////////
+</span>
+<span class=keyword>int</span> save_hdf5_image(<span class=keyword>const</span> <span class=keyword>char</span> *file_name, <span class=keyword>const</span> <span class=keyword>char</span> *img_name)
+{
+  hid_t fid;
+  <span class=keyword>unsigned</span> <span class=keyword>char</span> *buf;
+  hsize_t width = 200;
+  hsize_t height = 100;
+  <span class=keyword>const</span> <span class=keyword>int</span> pixel_size = 3;
+  size_t x, y;
+  size_t idx = 0;
+
+  buf = (<span class=keyword>unsigned</span> <span class=keyword>char</span>*)malloc((size_t)width * (size_t)height * pixel_size * <span class=keyword>sizeof</span>(<span class=keyword>unsigned</span> <span class=keyword>char</span>));
+
+  <span class=keyword>for</span>(y = 0; y &lt; height / 2; ++y)
+  {
+    <span class=keyword>for</span>(x = 0; x &lt; width; ++x)
+    {
+      buf[idx]   = 255; <span class=comment>//red
+</span>      buf[idx+1] = 0;   <span class=comment>//green
+</span>      buf[idx+2] = 0;   <span class=comment>//blue
+</span>      idx += 3;
+    }
+  }
+
+  <span class=keyword>for</span>(y = height / 2; y &lt; height; ++y)
+  {
+    <span class=keyword>for</span>(x = 0; x &lt; width; ++x)
+    {
+      buf[idx]   = 0;   <span class=comment>//red
+</span>      buf[idx+1] = 255; <span class=comment>//green
+</span>      buf[idx+2] = 0;   <span class=comment>//blue
+</span>      idx += 3;
+    }
+  }
+
+  <span class=keyword>if</span>((fid = H5Fcreate(file_name, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT)) &lt; 0)
+  {
+
+  }
+
+  <span class=keyword>if</span>((H5IMmake_image_24bit(fid, img_name, width, height, <span class=text>&quot;INTERLACE_PIXEL&quot;</span>, buf)) &lt; 0)
+  {
+
+  }
+
+  <span class=keyword>if</span>(H5Fclose(fid) &lt; 0)
+  {
+
+  }
+
+  free(buf);
+  <span class=keyword>return</span> 0;
+}
+
+
+</pre>
+<h1>PNG images</h1>
+Portable Network Graphics (PNG, pronounced "ping") is a raster graphics file format that supports full-color 24bit RGB images.
+To save a 24bit HDF5 image in PNG format, the inverse operation is made. Use the HDF5 image API to read the image to a memory
+buffer, and use that buffer as input for the libpng API.
+The following function does just this
+
+<pre class="cpp"><span class=preprocessor>#include</span> &lt;png.h&gt;
+<span class=preprocessor>#include</span> &lt;hdf5.h&gt;
+<span class=preprocessor>#include</span> &lt;hdf5_hl.h&gt;
+<span class=preprocessor>#include</span> &lt;stdint.h&gt;
+<span class=preprocessor>#include</span> &lt;malloc.h&gt;
+<span class=preprocessor>#include</span> &lt;string&gt;
+
+<span class=comment>/////////////////////////////////////////////////////////////////////////////////////////////////////
+</span><span class=comment>//hdf5_to_png
+</span><span class=comment>/////////////////////////////////////////////////////////////////////////////////////////////////////
+</span>
+<span class=keyword>int</span> hdf5_to_png(<span class=keyword>const</span> <span class=keyword>char</span> *file_name, <span class=keyword>const</span> <span class=keyword>char</span> *img_name)
+{
+  hid_t fid;
+  hsize_t width;
+  hsize_t height;
+  hsize_t pixel_size;
+  <span class=keyword>char</span> interlace[20];
+  hssize_t npals;
+  <span class=keyword>unsigned</span> <span class=keyword>char</span> *buf;
+
+  <span class=comment>/////////////////////////////////////////////////////////////////////////////////////////////////////
+</span>  <span class=comment>//HDF5
+</span>  <span class=comment>/////////////////////////////////////////////////////////////////////////////////////////////////////
+</span>
+  <span class=keyword>if</span>((fid = H5Fopen(file_name, H5F_ACC_RDONLY, H5P_DEFAULT)) &lt; 0)
+  {
+    <span class=keyword>return</span> -1;
+  }
+
+  <span class=keyword>if</span>(H5IMget_image_info(fid, img_name, &amp;width, &amp;height, &amp;pixel_size, interlace, &amp;npals) &lt; 0)
+  {
+
+  }
+
+  buf = (<span class=keyword>unsigned</span> <span class=keyword>char</span>*)malloc((size_t)width * (size_t)height *  (size_t)pixel_size * <span class=keyword>sizeof</span>(<span class=keyword>unsigned</span> <span class=keyword>char</span>));
+
+  <span class=keyword>if</span>(H5IMread_image(fid, img_name, buf) &lt; 0)
+  {
+
+  }
+
+  <span class=keyword>if</span>(H5Fclose(fid) &lt; 0)
+  {
+
+  }
+
+  <span class=comment>/////////////////////////////////////////////////////////////////////////////////////////////////////
+</span>  <span class=comment>//PNG
+</span>  <span class=comment>/////////////////////////////////////////////////////////////////////////////////////////////////////
+</span>
+  FILE *fp;
+  png_structp png_ptr = NULL;
+  png_infop info_ptr = NULL;
+  <span class=keyword>int</span> bit_depth = 8;
+  png_byte **row_pointers = NULL;
+  size_t x, y;
+  size_t idx_buf = 0;
+
+  <span class=keyword>if</span>((png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL)) == NULL)
+  {
+
+  }
+
+  <span class=keyword>if</span>((info_ptr = png_create_info_struct(png_ptr)) == NULL)
+  {
+
+  }
+
+  <span class=comment>//set up error handling. 
+</span>  <span class=keyword>if</span>(setjmp(png_jmpbuf(png_ptr)))
+  {
+
+  }
+
+  png_set_IHDR(png_ptr,
+    info_ptr,
+    (png_uint_32)width,
+    (png_uint_32)height,
+    (<span class=keyword>int</span>)bit_depth,
+    PNG_COLOR_TYPE_RGB,
+    PNG_INTERLACE_NONE,
+    PNG_COMPRESSION_TYPE_DEFAULT,
+    PNG_FILTER_TYPE_DEFAULT);
+
+  <span class=comment>//add the extension .png to input HDF5 file name
+</span>  std::string str_file_name(file_name);
+  str_file_name += <span class=text>&quot;.png&quot;</span>;
+
+  <span class=keyword>if</span>((fp = fopen(str_file_name.c_str(), <span class=text>&quot;wb&quot;</span>)) == NULL)
+  {
+
+  }
+
+  row_pointers = (png_byte **)png_malloc(png_ptr, (png_uint_32)height * <span class=keyword>sizeof</span>(png_byte *));
+  <span class=keyword>for</span>(y = 0; y &lt; height; ++y)
+  {
+    png_byte *row = (png_byte *)png_malloc(png_ptr, <span class=keyword>sizeof</span>(uint8_t) * (png_uint_32)width * (<span class=keyword>int</span>)pixel_size);
+    row_pointers[y] = row;
+    <span class=keyword>for</span>(x = 0; x &lt; width; ++x)
+    {
+
+      *row++ = buf[idx_buf];   <span class=comment>//red
+</span>      *row++ = buf[idx_buf+1]; <span class=comment>//green;
+</span>      *row++ = buf[idx_buf+2]; <span class=comment>//blue;
+</span>      idx_buf  += 3;
+    }
+  }
+
+  png_init_io(png_ptr, fp);
+  png_set_rows(png_ptr, info_ptr, row_pointers);
+  png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+
+  <span class=keyword>for</span>(y = 0; y &lt; height; y++)
+  {
+    png_free(png_ptr, row_pointers[y]);
+  }
+  png_free(png_ptr, row_pointers);
+  png_destroy_write_struct(&amp;png_ptr, &amp;info_ptr);
+  fclose(fp);
+  free(buf);
+  <span class=keyword>return</span> 0;
+}
+
+</pre>
+
+
+The generated image is
+<br>
+<br>
+<img src="image.png">
+
+<h2>References</h2>
+<ul>
+<li>
+[RFC2083] PNG (Portable Network Graphics) Specification. https://tools.ietf.org/html/rfc2083
+</li>
+<li>
+HDF5 Image and Palette Specification. https://www.hdfgroup.org/HDF5/doc/ADGuide/ImageSpec.html
+</li>
+</ul>
+
+</body>
+</html>
