@@ -55,5 +55,5 @@ make -f makefile test
 
 Documentation
 ------------
-[h5png](h5png.html)
+[h5png](http://www.space-research.org/blog/blog.html)
 
