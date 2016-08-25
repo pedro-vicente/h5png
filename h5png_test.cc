@@ -44,8 +44,8 @@ int save_png_image(const char *file_name)
   FILE *fp;
   png_structp png_ptr = NULL;
   png_infop info_ptr = NULL;
-  png_uint_32 width = 200;
-  png_uint_32 height = 100;
+  png_uint_32 width = 400;
+  png_uint_32 height = 200;
   int bit_depth = 8;
   int pixel_size = 3;
   png_byte **row_pointers = NULL;
@@ -123,8 +123,8 @@ int save_hdf5_image(const char *file_name, const char *img_name)
 {
   hid_t fid;
   unsigned char *buf;
-  hsize_t width = 200;
-  hsize_t height = 100;
+  hsize_t width = 300;
+  hsize_t height = 150;
   const int pixel_size = 3;
   size_t x, y;
   size_t idx = 0;
