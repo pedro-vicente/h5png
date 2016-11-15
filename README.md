@@ -71,10 +71,10 @@ cmake .. \
 -DHDF5_HL_INCLUDE:PATH=/your/hdf5 high level/include/path \
 -DPNG_LIBRARY=/your/png/library/file/name \
 -DHDF5_LIBRARY=/your/hdf5/library/file/name \
+-DHDF5_HL_LIBRARY=/your/hdf5 high level/library/file/name \
 -DZLIB_LIBRARY=/your/zlib/library/file/name \
--DSZIP_LIBRARY=/your/zlib/library/file/name
+-DSZIP_LIBRARY=/your/szlib/library/file/name
 </pre>
-
 
 For a Windows Visual Studio build a statically build runtime library can be set with. 
 <pre>
