@@ -1,7 +1,24 @@
+#options
+#PNG_INCLUDE
+#PNG_LIBRARY
+#HDF5_INCLUDE
+#HDF5_HL_INCLUDE
+#HDF5_LIBRARY
+#HDF5_HL_LIBRARY
+#ZLIB_LIBRARY
+#SZIP_LIBRARY
+
 cmake_minimum_required(VERSION 2.8)
 project (h5png)
 include(CheckCXXCompilerFlag)
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};/usr/lib/i386-linux-gnu;)
+
+find_path(PNG_INCLUDE_FOUND png.h HINTS ${PNG_INCLUDE})
+if(NOT PNG_INCLUDE_FOUND)
+  message(FATAL_ERROR "png.h header file not found")
+else()
+  message("-- Found png.h header file at: " ${PNG_INCLUDE_FOUND})
+endif()
 
 find_library(PNG_LIBRARY NAMES png)
 if(NOT PNG_LIBRARY)
@@ -10,11 +27,18 @@ else()
   message("-- Found png library at: " ${PNG_LIBRARY})
 endif()
 
-find_path(HDF5_INCLUDE hdf5.h HINTS "/usr/include/hdf5/serial")
-if(NOT HDF5_INCLUDE)
+find_path(HDF5_INCLUDE_FOUND hdf5.h HINTS ${HDF5_INCLUDE} "/usr/include/hdf5/serial")
+if(NOT HDF5_INCLUDE_FOUND)
   message(FATAL_ERROR "hdf5.h header file not found")
 else()
-  message("-- Found hdf5.h header file at: " ${HDF5_INCLUDE}/hdf5.h)
+  message("-- Found hdf5.h header file at: " ${HDF5_INCLUDE_FOUND})
+endif()
+
+find_path(HDF5_HL_INCLUDE_FOUND hdf5_hl.h HINTS ${HDF5_HL_INCLUDE} "/usr/include/hdf5/serial")
+if(NOT HDF5_HL_INCLUDE_FOUND)
+  message(FATAL_ERROR "hdf5_hl.h header file not found")
+else()
+  message("-- Found hdf5_hl.h header file at: " ${HDF5_HL_INCLUDE_FOUND})
 endif()
 
 find_library(HDF5_LIBRARY NAMES hdf5 HINTS "${CMAKE_PREFIX_PATH}/hdf5/serial")
@@ -89,7 +113,7 @@ else ()
   set (CMAKE_CXX_STANDARD 11)
 endif()
 
-include_directories(${PNG_INCLUDE} ${HDF5_INCLUDE} ${HDF5_HL_INCLUDE})
+include_directories(${PNG_INCLUDE_FOUND} ${HDF5_INCLUDE_FOUND} ${HDF5_HL_INCLUDE_FOUND})
 set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${PNG_LIBRARY} ${HDF5_LIBRARY} ${HDF5_HL_LIBRARY} ${ZLIB_LIBRARY} ${SZIP_LIBRARY})
 set(SOURCES h5png.cc h5png.hh)
 add_executable(h5png h5png_main.cc ${SOURCES})

@@ -53,6 +53,35 @@ make -f makefile
 make -f makefile test
 </pre>
 
+Building with CMake in Unix
+------------
+On most Unix systems, the png, hdf5, zlib, szip libraries are found on the default location with
+<pre>
+cd build
+cmake ..
+</pre>
+
+CMake build options
+------------
+If the png, hdf5, zlib, szip libraries are not found on the default location, they can be set. 
+<pre>
+cmake .. \
+-DPNG_INCLUDE:PATH=/your/png/include/path \
+-DHDF5_INCLUDE:PATH=/your/hdf5/include/path \
+-DHDF5_HL_INCLUDE:PATH=/your/hdf5 high level/include/path \
+-DPNG_LIBRARY=/your/png/library/file/name \
+-DHDF5_LIBRARY=/your/hdf5/library/file/name \
+-DZLIB_LIBRARY=/your/zlib/library/file/name \
+-DSZIP_LIBRARY=/your/zlib/library/file/name
+</pre>
+
+
+For a Windows Visual Studio build a statically build runtime library can be set with. 
+<pre>
+cmake .. -DSTATIC_CRT:BOOL=ON
+</pre>
+
+
 Documentation
 ------------
 [h5png](http://www.space-research.org/blog/blog.html)

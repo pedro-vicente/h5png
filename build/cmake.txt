@@ -1,1 +1,11 @@
 cmake .. -DHDF5_INCLUDE:PATH=/data/starfs1/libs/hdf5-1.8.7-linux-x86_64-static/include -DHDF5_LIBRARY=/data/starfs1/libs/hdf5-1.8.7-linux-x86_64-static/lib/libhdf5.a -DHDF5_HL_INCLUDE:PATH=/data/starfs1/libs/hdf5-1.8.7-linux-x86_64-static/include -DHDF5_HL_LIBRARY=/data/starfs1/libs/hdf5-1.8.7-linux-x86_64-static/lib/libhdf5_hl.a -DSZIP_LIBRARY=/data/starfs1/libs/hdf-4.2.6-linux-x86_64/lib/libsz.a -DZLIB_LIBRARY=/data/starfs1/libs/hdf5-1.8.7-linux-x86_64-static/lib/libz.a
+cmake .. \
+-DSTATIC_CRT:BOOL=ON \
+-DPNG_INCLUDE:PATH=/c/include \
+-DHDF5_INCLUDE:PATH=/c/include/hdf5 \
+-DHDF5_HL_INCLUDE:PATH=/c/include/hdf5 \
+-DPNG_LIBRARY=/c/lib/libpng16.lib \
+-DHDF5_LIBRARY=/c/lib/hdf5.1.8.5.patch1.lib \
+-DHDF5_HL_LIBRARY=/c/lib/hdf5_hl.1.8.5.patch1.lib \
+-DZLIB_LIBRARY=/c/lib/zlib.lib \
+-DSZIP_LIBRARY=/c/lib/szlib.lib 
