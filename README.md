@@ -39,7 +39,7 @@ Install dependency packages: For RPM-based systems (like Fedora and CentOS)
 <pre>
 sudo yum install zlib-devel
 sudo yum install hdf5 hdf5-devel
-sudo yum install libpng
+sudo yum install libpng-devel
 </pre>
 
 Get source:
