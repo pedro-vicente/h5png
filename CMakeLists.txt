@@ -48,7 +48,7 @@ else()
   message("-- Found hdf5 library at: " ${HDF5_LIBRARY})
 endif()
 
-find_library(HDF5_HL_LIBRARY NAMES hdf5_hl HINTS HINTS "${CMAKE_PREFIX_PATH}/hdf5/serial")
+find_library(HDF5_HL_LIBRARY NAMES hdf5_hl HINTS "${CMAKE_PREFIX_PATH}/hdf5/serial")
 if(NOT HDF5_HL_LIBRARY)
   message(FATAL_ERROR "hdf5 high level library not found")
 else()
