@@ -3,7 +3,11 @@
 #include <hdf5.h>
 #include <hdf5_hl.h>
 #include <stdint.h>
+#if defined(__MACH__)
+#include <stdlib.h>
+#else 
 #include <malloc.h>
+#endif
 #include <string>
 #include "h5png.hh"
 

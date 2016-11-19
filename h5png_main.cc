@@ -1,8 +1,6 @@
 #include <png.h>
 #include <hdf5.h>
 #include <hdf5_hl.h>
-#include <stdint.h>
-#include <malloc.h>
 #include <iostream>
 #include <stdlib.h>
 #include "h5png.hh"
