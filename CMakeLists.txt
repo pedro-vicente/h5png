@@ -65,7 +65,7 @@ else()
   message("-- Found zlib library at: " ${ZLIB_LIBRARY})
 endif()
 
-find_library(SZIP_LIBRARY NAMES sz HINTS "/data/starfs1/libs/hdf-4.2.6-linux-x86_64/lib/")
+find_library(SZIP_LIBRARY NAMES sz HINTS "/data/starfs1/libs/hdf-4.2.6-linux-x86_64/lib/" "/root/usr2/MRT/lib")
 if(NOT SZIP_LIBRARY)
   message(FATAL_ERROR "szip library not found")
 else()
